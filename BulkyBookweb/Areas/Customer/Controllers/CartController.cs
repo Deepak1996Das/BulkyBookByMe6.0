@@ -95,6 +95,8 @@ namespace BulkyBookweb.Areas.Customer.Controllers
                 OrderHeader=new()
             };
 
+            
+
             ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.applicationtUser.GetFirstOrDefault(u =>
             u.Id == claim.Value);
 
@@ -117,7 +119,7 @@ namespace BulkyBookweb.Areas.Customer.Controllers
 
             return View(ShoppingCartVM);
 
-            return View();
+            //return View();
         }
 
         [HttpPost]

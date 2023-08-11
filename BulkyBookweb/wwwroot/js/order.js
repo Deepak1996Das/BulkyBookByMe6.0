@@ -1,20 +1,48 @@
 ﻿var dataTable;
 
 $(document).ready(function () {
-    loadDataTable();
+    var url = window.location.search;
+    if (url.includes("inprocess"))
+    {
+        loadDataTable("inprocess");
+    }
+    else
+    {
+        if (url.includes("complited"))
+        {
+            loadDataTable("complited");
+        }
+        else
+        {
+            if (url.includes("pending"))
+            {
+                loadDataTable("pending");
+            }
+            else
+            {
+                if (url.includes("approved")) {
+                    loadDataTable("approved");
+                }
+                else  {
+                    loadDataTable("all");
+                }
+            }
+        }
+    }
+    
 });
 
-function loadDataTable() {
+function loadDataTable(status) {
     dataTable = $('#tblData').dataTable({
         "ajax": {
-            "url": "/Admin/Order/GetAll"
+            "url": "/Admin/Order/GetAll?status="+status
         },
         "columns": [
             { "data": "id", "width": "14%" },
             { "data": "name", "width": "14%" },
-            { "data": "phonenNumber", "width": "14%" },
+            { "data": "phoneNumber", "width": "14%" },
             { "data": "applicationUser.email", "width": "14%" },
-            { "data": "orderStatus", "width": "14%" },
+            { "data": "oderStatus", "width": "14%" },
             { "data": "orderTotal", "width": "14%" },
             {
                 "data": "id",
