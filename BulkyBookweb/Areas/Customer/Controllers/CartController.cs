@@ -194,7 +194,7 @@ namespace BulkyBookweb.Areas.Customer.Controllers
 
 
                     Mode = "payment",
-                    SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
+                    SuccessUrl = domain + $"Customer/Cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
                     CancelUrl = domain + $"customer/cart/index",
 
                 };
