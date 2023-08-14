@@ -181,7 +181,7 @@ namespace BulkyBookweb.Areas.Customer.Controllers
             if (applicationUser.CompanyId.GetValueOrDefault() == 0)
             {
                 //Stripe setting
-                var domain = "https://localhost:7171/";
+                var domain = "https://localhost:44393/";
 
                 var options = new SessionCreateOptions
                 {
@@ -251,7 +251,8 @@ namespace BulkyBookweb.Areas.Customer.Controllers
 
 				if (session.PaymentStatus.ToLower() == "paid")
 				{
-					_unitOfWork.orderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+                    _unitOfWork.orderHeader.UpdateStripePaymentID(id, orderHeader.SessionId, session.PaymentIntentId);
+                    _unitOfWork.orderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
 					_unitOfWork.Save();
 				}
 			}

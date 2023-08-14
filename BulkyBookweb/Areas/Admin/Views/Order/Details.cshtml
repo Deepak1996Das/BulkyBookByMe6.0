@@ -1,6 +1,7 @@
 ﻿@model BulkyBook.Models.ViewModels.OrderVM
 @using BulkyBook.Utility
 <form method="post">
+    <input asp-for="orderHeader.Id" hidden />
     <br />
     <div class="container">
         <div class="card">
@@ -10,7 +11,7 @@
                         <i class="fas fa-shopping-cart"></i> &nbsp; Order Summary
                     </div>
                     <div class="col-12 col-md-4 offset-md-2 text-right">
-                        <a class="btn btn-outline-info form-control btn-sm">Back to Orders</a>
+                        <a asp-action="Index" class="btn btn-outline-info form-control btn-sm">Back to Orders</a>
                     </div>
                 </div>
             </div>
@@ -198,7 +199,11 @@
                                     <input asp-for="orderHeader.PaymentStatus" type="text" readonly class="form-control" />
                                 </div>
                             </div>
-                            <input type="submit" class="btn btn-warning form-control my-1" value="Update Order Details" />
+
+
+                            <input type="submit" asp-action="UpdateOrderDetail" class="btn btn-warning form-control my-1" value="Update Order Details" />
+
+
 
                         </div>
                         <div class="col-12 col-lg-5 offset-lg-1">
@@ -242,24 +247,28 @@
                             {
                                 if(Model.orderHeader.OderStatus==SD.StatusApproved)
                                 {
-                                    <input type="submit" class="btn btn-primary form-control my-1" value="Start Processing" />
+                                    <input type="submit" asp-action="StartProcessing" class="btn btn-primary form-control my-1" value="Start Processing" />
                                 }
                                 if(Model.orderHeader.OderStatus==SD.StatusInProcess)
                                 {
-                                    <input type="submit" class="btn btn-primary form-control my-1" value="Ship Order" />
+                                    <input type="submit" onclick="return ValidateInput() "
+                                        asp-action="ShipOrder" class="btn btn-primary form-control my-1" value="Ship Order" />
                                 }
-                                @if(Model.orderHeader.PaymentStatus==SD.PaymentStatusDelayedPayment &&
-                                  Model.orderHeader.OderStatus==SD.StatusShipped)
-                                {
-                                    <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
-
-                                }
-                                @if(Model.orderHeader.OderStatus != SD.statusRefunded ||
+                               
+                               
+                                @if(Model.orderHeader.OderStatus != SD.statusRefunded &&
                                  Model.orderHeader.OderStatus != SD.StatusCancelled)
                                 {
-                                 <input type="submit" class="btn btn-danger form-control my-1" value="Cancel Order" />
+                                    <input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
                                 }
                             }
+                             @if (Model.orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment &&
+                                 Model.orderHeader.OderStatus == SD.StatusShipped)
+                                  {
+                                    <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
+
+                                  }
+                          
                         </div>
                     </div>
                 </div>
@@ -267,3 +276,30 @@
         </div>
     </div>
 </form>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function ValidateInput() {
+            if (document.getElementById("TrackingNumber").value == "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter tracking number'
+                });
+                return false;
+
+            }
+            if (document.getElementById("Carrier").value == "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter tracking number'
+                });
+                return false;
+
+            }
+            return true;
+        }
+    </script>
+}
