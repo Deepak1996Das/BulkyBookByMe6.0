@@ -39,6 +39,13 @@ namespace BulkyBookweb
                 Options.LogoutPath = $"/Identity/Account/Logout";
                 Options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
             });
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(Options =>
+            {
+                Options.IdleTimeout = TimeSpan.FromMinutes(100);
+                Options.Cookie.HttpOnly = true;
+                Options.Cookie.IsEssential = true;
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -66,6 +73,7 @@ namespace BulkyBookweb
             app.UseAuthentication(); ;
 
             app.UseAuthorization();
+            app.UseSession();
             app.MapRazorPages();
             app.MapControllerRoute(
                 name: "default",

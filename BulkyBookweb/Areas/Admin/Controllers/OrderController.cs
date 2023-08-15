@@ -1,10 +1,12 @@
-﻿using BulkyBook.DataAccess.Repository.IRepository;
+﻿using BulkyBook.DataAccess.Repository;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using Stripe.Checkout;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -37,6 +39,84 @@ namespace BulkyBookweb.Areas.Admin.Controllers
             return View(OrderVM);
         }
 
+        [ActionName("Details")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Details_Pay()
+        {
+
+            OrderVM.orderHeader = _unitofwork.orderHeader.GetFirstOrDefault(u => u.Id == OrderVM.orderHeader.Id, includeProperties: "ApplicationUser");
+            OrderVM.orderDetails = _unitofwork.orderDetail.GetALl(u => u.Id == OrderVM.orderHeader.Id, includeProperties: "product");
+
+            //Stripe setting
+            var domain = "https://localhost:44393/";
+
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string>
+                {
+                    "card",
+                },
+
+                LineItems = new List<SessionLineItemOptions>(),
+
+
+                Mode = "payment",
+                SuccessUrl = domain + $"Admin/Order/PaymentConfirmation?orderHeaderid={OrderVM.orderHeader.Id}",
+                CancelUrl = domain + $"Admin/Order/Details?orderId={OrderVM.orderHeader.Id}",
+
+            };
+            foreach (var item in OrderVM.orderDetails)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100),
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.product.Title,
+                        },
+                    },
+                    Quantity = item.Count,
+                };
+                options.LineItems.Add(sessionLineItem);
+
+            }
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+
+            _unitofwork.orderHeader.UpdateStripePaymentID(OrderVM.orderHeader.Id, session.Id, session.PaymentIntentId);
+            _unitofwork.Save();
+
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+
+            return View(OrderVM);
+        }
+
+        //-----------------------------------------------------------
+        public IActionResult PaymentConfirmation(int orderHeaderId)
+        {
+            OrderHeader orderHeader = _unitofwork.orderHeader.GetFirstOrDefault(u => u.Id == orderHeaderId);
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitofwork.orderHeader.UpdateStripePaymentID(orderHeaderId, orderHeader.SessionId, session.PaymentIntentId);
+                    _unitofwork.orderHeader.UpdateStatus(orderHeaderId, orderHeader.OderStatus, SD.PaymentStatusApproved);
+                    _unitofwork.Save();
+                }
+            }
+
+           
+            return View(orderHeaderId);
+        }
 
         //-----------------------------------------------------------
 
