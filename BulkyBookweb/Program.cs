@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BulkyBook.Utility;
 using Stripe;
+using BulkyBook.DataAccess.DbInitializer;
 
 namespace BulkyBookweb
 {
@@ -30,6 +31,8 @@ namespace BulkyBookweb
             builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddScoped<IunitOfWork, UnitOfWork>();
+            builder.Services.TryAddScoped<IDbInitializer, DbInitializer>();
+
             builder.Services.AddSingleton<IEmailSender, EmailSender>();
            // builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
             builder.Services.AddRazorPages();
@@ -69,8 +72,8 @@ namespace BulkyBookweb
             app.UseRouting();
 
             StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
-
-            app.UseAuthentication(); ;
+            SeedDataBase();
+            app.UseAuthentication(); 
 
             app.UseAuthorization();
             app.UseSession();
@@ -80,6 +83,15 @@ namespace BulkyBookweb
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
+
+            void SeedDataBase()
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+                    dbInitializer.Initializer();
+                }
+            }
         }
     }
 }

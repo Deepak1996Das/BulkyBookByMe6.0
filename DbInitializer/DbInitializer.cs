@@ -53,20 +53,20 @@ namespace BulkyBook.DataAccess.DbInitializer
 
                 //if  roles are not created ,then we will create admin user as well
 
-                //_userManager.CreateAsync(new ApplicationUser
-                //{
-                //    UserName = "Deepak kumar Das",
-                //    Email = "en.deepak1996@gmail.com",
-                //    Name = "Deepak",
-                //    PhoneNumber = "9090227262",
-                //    StreetAddress = "Deulahat",
-                //    State = "Odisha",
-                //    PostalCode = "756036",
-                //    City = "Balasore"
-                //}, "Deepak@1996kumar").GetAwaiter().GetResult();
+                _userManager.CreateAsync(new ApplicationUser
+                {
+                    UserName = "Deepak kumar Das",
+                    Email = "en.deepak1996@gmail.com",
+                    Name = "Deepak",
+                    PhoneNumber = "9090227262",
+                    StreetAddress = "Deulahat",
+                    State = "Odisha",
+                    PostalCode = "756036",
+                    City = "Balasore"
+                }, "Deepak@1996kumar").GetAwaiter().GetResult();
 
-                //ApplicationUser user = _db.applicationUsers.FirstOrDefault(u => u.Email == "en.deepak1996@gmail.com");
-                //_userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
+                ApplicationUser user = _db.applicationUsers.FirstOrDefault(u => u.Email == "en.deepak1996@gmail.com");
+                _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
 
             }
             //if (_db.applicationUsers.FirstOrDefault(u => u.Email == "en.deepak1996@gmail.com") == null)
