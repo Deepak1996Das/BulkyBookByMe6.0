@@ -22,7 +22,7 @@ namespace BulkyBookweb
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<ApplicationDbContext>(Options => Options.UseSqlServer(
-                builder.Configuration.GetConnectionString("DefaultConnection")));
+                builder.Configuration.GetConnectionString("ApplicationDbContextConnection")));
 
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
@@ -30,6 +30,7 @@ namespace BulkyBookweb
 
             builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
             builder.Services.AddScoped<IunitOfWork, UnitOfWork>();
             builder.Services.TryAddScoped<IDbInitializer, DbInitializer>();
 
